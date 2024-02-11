@@ -3,9 +3,11 @@ import streamlit as st
 import logging
 logging.basicConfig(level=logging.INFO)
 
-agent_choice = st.selectbox('Choose a model', Agent)
+agent_choice = Agent.FLAN  # st.selectbox('Choose a model', Agent)
 
-st.title("Welcome to generic Wikipedia chatbot!")
+st.image("logo.svg")
+st.title("Welcome to the Lindt Home of Chocolate!")
+st.markdown("Warm greetings, chocoholic! Welcome to the Lindt Home of Chocolate, where your sweetest dreams collide with delicious reality. Immerse yourself in a world of pure indulgence, and explore the fascinating journey of cocoa bean to creamy perfection. Whether you're a seasoned Lindt connoisseur or simply curious to unravel the secrets behind our irresistible chocolates, our friendly FAQ chatbot is here to guide you. Ask away, and let's embark on a delightful discovery together!")
 conversation = Conversation.start(agent=Agent(agent_choice))
 
 
