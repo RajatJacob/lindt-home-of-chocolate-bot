@@ -83,7 +83,7 @@ def get_documents_from_page_content(url: str):
         ("h2", "Header 2"),
         ("h3", "Header 3"),
     ]
-
+    logging.info(f'Tokenizing HTML for "{url}"')
     text_splitter = HTMLHeaderTextSplitter(
         headers_to_split_on=HEADERS_TO_SPLIT_ON)
     return text_splitter.split_text(str(requests_get(url)))
@@ -97,16 +97,21 @@ def search(query: str, should_return_documents=False):
 
 
 def search_and_vectorize(query: str):
+    logging.info(f'Searching and vectorizing "{query}"')
     results = chroma_collection.query(query_texts=[query], n_results=10)
     distances = np.squeeze(results['distances'])
     if len(distances) > 0 and np.min(distances) < 1:
         return results
+    logging.info(f'Getting text for "{query}"')
     text = search(query, should_return_documents=False)
+    logging.info(f'Getting docs for "{query}"')
     docs = search(query, should_return_documents=True)
     ids = [f"{query}_text", *[f"{query}_{doc}" for doc in range(len(docs))]]
+    logging.info(f'Adding "{query}" to the collection')
     chroma_collection.add(
         documents=[text, *[doc.page_content for doc in docs]],
         ids=ids
     )
+    logging.info(f'Done adding "{query}"')
     results = chroma_collection.query(query_texts=[query], n_results=3)
     return results
