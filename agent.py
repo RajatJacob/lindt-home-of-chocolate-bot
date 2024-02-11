@@ -38,7 +38,7 @@ class _AgentABC(ABC):
     ) -> str:
         if not context:
             return question
-        return f"""Context: {context}\nQuestion: {question}"""
+        return f"""Context: {context}\nQuestion: {question}\nAdd context if you can."""
 
 
 class BERTAgent(_AgentABC):

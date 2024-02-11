@@ -44,14 +44,23 @@ class Conversation(BaseModel):
             docs = search_and_vectorize(entity.name)
             for doc in docs['documents']:
                 out.extend(doc)
-        return '\n\n'.join(out)
+        context = '\n\n'.join(out).strip()
+        docs = search_and_vectorize(question+'\n'+context)
+        print("DOCS", context, docs)
+        for doc in docs['documents']:
+            out.extend(doc)
+        context = '\n\n'.join(out).strip()
+        print(context)
+        return context
 
     def send(self, text: str):
         message = Message(sender=Role.USER, text=text)
         self.history.append(message)
-        context = self.find_context(text) or text
+        context = self.find_context(text)
         self.history.append(Message(sender=Role.SYSTEM, text=context))
         response = self.agent.ask(text, context)
-        response_message = Message(sender=Role.ASSISTANT, text=response)
+        rephrased = Agent.FLAN.get_agent().ask(
+            f"Rephrase: {response}", response)
+        response_message = Message(sender=Role.ASSISTANT, text=rephrased)
         self.history.append(response_message)
         return response_message

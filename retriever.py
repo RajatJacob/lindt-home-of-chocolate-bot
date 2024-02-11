@@ -5,9 +5,10 @@ from pydantic import BaseModel
 from urllib.parse import urlparse, parse_qs, urlunparse, urlencode
 from bs4 import BeautifulSoup
 import logging
-from langchain.text_splitter import HTMLHeaderTextSplitter
+from langchain.text_splitter import HTMLHeaderTextSplitter, CharacterTextSplitter, Document
 import chromadb
 from chromadb.utils import embedding_functions
+from nltk import sent_tokenize
 
 sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(
     model_name="all-MiniLM-L6-v2"
@@ -89,14 +90,27 @@ def get_documents_from_page_content(url: str):
     return text_splitter.split_text(str(requests_get(url)))
 
 
-def search(query: str, should_return_documents=False):
+def __search_external(query: str, should_return_documents=False):
     closest = get_closest_match(query)
     if should_return_documents:
         return get_documents_from_page_content(closest.url)
     return get_page_content(closest.url)
 
 
-def search_and_vectorize(query: str):
+def search(query: str, should_return_documents=False, external=True):
+    external = None
+    if external:
+        external = __search_external(query, should_return_documents)
+    text = open('lindt.txt', 'r').read()
+    if should_return_documents:
+        return (external or []) + [
+            Document(page_content=document)
+            for document in sent_tokenize(text) if document
+        ]
+    return (external or '') + '\n\n' + text
+
+
+def search_and_vectorize(query: str, should_add=True):
     logging.info(f'Searching and vectorizing "{query}"')
     results = chroma_collection.query(query_texts=[query], n_results=10)
     distances = np.squeeze(results['distances'])
@@ -107,11 +121,12 @@ def search_and_vectorize(query: str):
     logging.info(f'Getting docs for "{query}"')
     docs = search(query, should_return_documents=True)
     ids = [f"{query}_text", *[f"{query}_{doc}" for doc in range(len(docs))]]
-    logging.info(f'Adding "{query}" to the collection')
-    chroma_collection.add(
-        documents=[text, *[doc.page_content for doc in docs]],
-        ids=ids
-    )
-    logging.info(f'Done adding "{query}"')
+    if should_add:
+        logging.info(f'Adding "{query}" to the collection')
+        chroma_collection.add(
+            documents=[text, *[doc.page_content for doc in docs]],
+            ids=ids
+        )
+        logging.info(f'Done adding "{query}"')
     results = chroma_collection.query(query_texts=[query], n_results=3)
     return results
