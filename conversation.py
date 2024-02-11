@@ -20,16 +20,6 @@ class Message(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
-def find_context(question: str, max_char=1000) -> str:
-    entities = Entity.from_text(question)
-    out = []
-    for entity in entities:
-        logging.info("Searching for", entity.name)
-        docs = search_and_vectorize(entity.name)
-        out.extend(docs['documents'][0])
-    return '\n\n'.join(out)[:max_char]
-
-
 class Conversation(BaseModel):
     conversation_id: int
     history: List[Message]
@@ -44,10 +34,20 @@ class Conversation(BaseModel):
         )
         return conversation
 
+    def find_context(self, question: str, max_char=1000) -> str:
+        entities = Entity.from_text(question)
+        out = [message.text for message in self.history]
+        for entity in entities:
+            logging.info("Searching for", entity.name)
+            docs = search_and_vectorize(entity.name)
+            for doc in docs['documents']:
+                out.extend(doc)
+        return '\n\n'.join(out)[:max_char]
+
     def send(self, text: str):
         message = Message(sender=Role.USER, text=text)
         self.history.append(message)
-        context = find_context(text)
+        context = self.find_context(text)
         self.history.append(Message(sender=Role.SYSTEM, text=context))
         response = self.agent.ask(text, context)
         response_message = Message(sender=Role.ASSISTANT, text=response)
