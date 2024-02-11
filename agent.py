@@ -65,11 +65,6 @@ class GeminiAgent(_AgentABC):
         return response.text
 
 
-def find_context(question: str) -> str:
-    """This will be replaced by RAG"""
-    return question
-
-
 class Agent(Enum):
     FLAN = 'flan'
     GEMINI = 'gemini'
@@ -82,6 +77,5 @@ class Agent(Enum):
             Agent.QA: QAAgent
         }[self]
 
-    def ask(self, question: str) -> str:
-        context = find_context(question)
+    def ask(self, question: str, context: str) -> str:
         return str(self.get_agent().ask(question, context))

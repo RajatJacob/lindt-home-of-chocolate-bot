@@ -3,6 +3,9 @@ from typing import List
 from enum import Enum
 from datetime import datetime
 from agent import Agent
+from entity import Entity
+from retriever import search_and_vectorize
+import logging
 
 
 class Role(Enum):
@@ -15,6 +18,16 @@ class Message(BaseModel):
     sender: Role
     text: str
     timestamp: datetime = Field(default_factory=datetime.now)
+
+
+def find_context(question: str, max_char=1000) -> str:
+    entities = Entity.from_text(question)
+    out = []
+    for entity in entities:
+        logging.info("Searching for", entity.name)
+        docs = search_and_vectorize(entity.name)
+        out.extend(docs['documents'][0])
+    return '\n\n'.join(out)[:max_char]
 
 
 class Conversation(BaseModel):
@@ -34,7 +47,9 @@ class Conversation(BaseModel):
     def send(self, text: str):
         message = Message(sender=Role.USER, text=text)
         self.history.append(message)
-        response = self.agent.ask(text)
+        context = find_context(text)
+        self.history.append(Message(sender=Role.SYSTEM, text=context))
+        response = self.agent.ask(text, context)
         response_message = Message(sender=Role.ASSISTANT, text=response)
         self.history.append(response_message)
         return response_message
