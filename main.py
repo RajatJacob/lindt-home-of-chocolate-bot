@@ -3,7 +3,7 @@ import streamlit as st
 import logging
 logging.basicConfig(level=logging.INFO)
 
-agent_choice = Agent.FLAN  # st.selectbox('Choose a model', Agent)
+agent_choice = st.selectbox('Choose a model', Agent)
 
 st.image("logo.svg")
 st.title("Welcome to the Lindt Home of Chocolate!")
