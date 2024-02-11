@@ -108,5 +108,5 @@ def search_and_vectorize(query: str):
         documents=[text, *[doc.page_content for doc in docs]],
         ids=ids
     )
-    results = chroma_collection.query(query_texts=[query], n_results=10)
+    results = chroma_collection.query(query_texts=[query], n_results=3)
     return results
