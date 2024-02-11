@@ -41,7 +41,7 @@ class _AgentABC(ABC):
         return f"""Context: {context}\nQuestion: {question}"""
 
 
-class QAAgent(_AgentABC):
+class BERTAgent(_AgentABC):
     @classmethod
     def ask(cls, question: str, context: str):
         return question_answering(
@@ -66,15 +66,15 @@ class GeminiAgent(_AgentABC):
 
 
 class Agent(Enum):
-    FLAN = 'flan'
-    GEMINI = 'gemini'
-    QA = 'qa'
+    FLAN = 'FLAN'
+    GEMINI = 'Gemini'
+    BERT = 'BERT'
 
     def get_agent(self) -> Type[_AgentABC]:
         return {
             Agent.FLAN: FlanAgent,
             Agent.GEMINI: GeminiAgent,
-            Agent.QA: QAAgent
+            Agent.BERT: BERTAgent
         }[self]
 
     def ask(self, question: str, context: str) -> str:

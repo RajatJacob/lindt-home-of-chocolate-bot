@@ -34,22 +34,22 @@ class Conversation(BaseModel):
         )
         return conversation
 
-    def find_context(self, question: str, max_char=512) -> str:
+    def find_context(self, question: str) -> str:
         entities = Entity.from_text(question)
-        history = '\n'.join([message.text for message in self.history])[
-            :max_char//2]
-        out = []
+        history = '\n'.join([message.text for message in self.history])
+        entities_from_history = Entity.from_text(history)
+        out = ['\n'.join([entity.name for entity in entities_from_history])]
         for entity in entities:
             logging.info(f'Searching for "{entity.name}"')
             docs = search_and_vectorize(entity.name)
             for doc in docs['documents']:
                 out.extend(doc)
-        return history + ('\n\n'.join(out)[max_char//2:])
+        return '\n\n'.join(out)
 
     def send(self, text: str):
         message = Message(sender=Role.USER, text=text)
         self.history.append(message)
-        context = self.find_context(text)
+        context = self.find_context(text) or text
         self.history.append(Message(sender=Role.SYSTEM, text=context))
         response = self.agent.ask(text, context)
         response_message = Message(sender=Role.ASSISTANT, text=response)

@@ -3,8 +3,10 @@ import streamlit as st
 import logging
 logging.basicConfig(level=logging.INFO)
 
-st.title("Welcome to Madame Tussauds!")
-conversation = Conversation.start(agent=Agent.QA)
+agent_choice = st.selectbox('Choose a model', Agent)
+
+st.title("Welcome to generic Wikipedia chatbot!")
+conversation = Conversation.start(agent=Agent(agent_choice))
 
 
 def message_to_chat_message(message: Message):
