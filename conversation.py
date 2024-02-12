@@ -46,11 +46,11 @@ class Conversation(BaseModel):
                 out.extend(doc)
         context = '\n\n'.join(out).strip()
         docs = search_and_vectorize(question+'\n'+context)
-        print("DOCS", context, docs)
+        # print("DOCS", context, docs)
         for doc in docs['documents']:
             out.extend(doc)
         context = '\n\n'.join(out).strip()
-        print(context)
+        # print(context)
         return context
 
     def send(self, text: str):
