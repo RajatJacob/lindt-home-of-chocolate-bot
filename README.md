@@ -2,7 +2,7 @@
 
 > Rajat Abraham Jacob (P2023PTLP0036)
 
-[Live Demo - https://data-x.rajatjacob.com/lindt-hoc](https://data-x.rajatjacob.com/lindt-hoc)
+[Live Demo - https://lindt-hoc.rajatjacob.com/](https://lindt-hoc.rajatjacob.com/)
 
 ![Screenshot](./Screenshot.jpeg)
 
