@@ -1,0 +1,13 @@
+transformers
+chromadb
+python-dotenv
+google-generativeai
+streamlit
+redis[hiredis]
+nltk
+watchdog
+pydantic
+beautifulsoup4
+langchain
+torch
+sentence_transformers
