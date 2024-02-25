@@ -9,12 +9,14 @@ WORKDIR /app
 #     git \
 #     && rm -rf /var/lib/apt/lists/*
 
-# RUN git clone https://github.com/streamlit/streamlit-example.git .
-COPY . .
+# RUN git clone https://github.com/RajatJacob/lindt-home-of-chocolate-bot .
+ADD . .
 
-RUN pip3 install poetry streamlit
-RUN poetry install
-RUN python -m nltk.downloader punkt
+RUN pip3 install streamlit
+RUN pip3 install -r requirements.txt
+RUN python3 -m nltk.downloader punkt
+
+ADD . .
 
 EXPOSE 8501
 
